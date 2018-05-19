@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from server.teams_data import teams_initial
 from server.hacks_data import hacks_initial
+from server.users_data import users_initial
 
 app = Flask(__name__)
 CORS(app)
@@ -28,7 +29,7 @@ CORS(app)
 # ]
 
 teams = teams_initial.copy()
-hacks = hacks_initial
+hacks = hacks_initial.copy()
 
 
 @app.route('/')
@@ -52,10 +53,25 @@ def stats_hacks():
     return jsonify(with_y)
 
 
-# @app.route('/vote', methods=['POST'])
-# def vote():
-#     data = request.get_json(force=True)
-#     print(data)
+pair = (0, 1)
+users = users_initial.copy()
+
+
+@app.route('/vote')
+def vote():
+    (fst_index, snd_index) = pair
+    first = users[fst_index]
+    second = users[snd_index]
+    return jsonify([first, second])
+
+
+@app.route('/vote_set', methods=['POST'])
+def vote_set():
+    data = request.get_json(force=True)
+    print("DATA", data)
+    users_initial[data]['score'] = users_initial[data]['score'] + 1
+    update_pair()
+    return jsonify(data)
 #     elems = filter(lambda x: x['label'] == data['label'], d)
 #     for e in elems:
 #         d[e['label']] = e
@@ -65,3 +81,10 @@ def stats_hacks():
 #     # print(d)
 #     # return "Post {}".format(vote_id)
 #     return jsonify(d)
+
+
+def update_pair():
+    global pair
+    fst = (pair[0] + 1) % 5
+    snd = (pair[1] + 1) % 5
+    pair = (fst, snd)
