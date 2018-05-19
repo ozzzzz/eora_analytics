@@ -4,37 +4,86 @@ var dpoints = [];
 
 var chart = new CanvasJS.Chart("chartContainer", {
 	animationEnabled: true,
-	theme: "light2",
+	theme: "dark2",
 
 	title:{
-		text:"Teams rating"
+		text:"HR rating"
 	},
-	axisX:{
-		interval: 1
+//	axisX:{
+//		interval: 1
+//	},
+	toolTip: {
+		shared: true
+	},
+	legend:{
+		cursor: "pointer",
+		itemclick: toggleDataSeries
 	},
 
 	data: [{
-		type: "bar",
-		name: "companies",
-		axisYType: "secondary",
-		dataPoints: dpoints
-	}]
+		type: "stackedBar",
+		name: "Initial test",
+		showInLegend: "true",
+		dataPoints: []
+	    },
+
+        {
+	    type: "stackedBar",
+		name: "Java",
+		showInLegend: "true",
+		dataPoints: []
+	    },
+
+        {
+	    type: "stackedBar",
+		name: "Python",
+		showInLegend: "true",
+		dataPoints: []
+	    },
+
+	    {
+		type: "stackedBar",
+		name: "Git",
+		showInLegend: "true",
+		dataPoints: []
+	    }
+	]
+
+//	data: [{
+//		type: "bar",
+//		name: "companies",
+//		axisYType: "secondary",
+//		dataPoints: dpoints
+//	}]
 });
 
 function updateChart(path){
 
 	function addData(data) {
-		chart.options.data[0].dataPoints = sort_and_remove_x(data);
+		chart.options.data[0].dataPoints = data[0];
+		chart.options.data[1].dataPoints = data[1];
+		chart.options.data[2].dataPoints = data[2];
+		chart.options.data[3].dataPoints = data[3];
 		chart.render();
 	}
 
 	$.getJSON("http://127.0.0.1:5000/stats/".concat(path), addData);
 }
 
-updateChart('teams')
+updateChart('users')
 
-setInterval(function() {updateChart('teams')}, 150000);
+setInterval(function() {updateChart('users')}, 1500);
 
+
+function toggleDataSeries(e) {
+	if(typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+		e.dataSeries.visible = false;
+	}
+	else {
+		e.dataSeries.visible = true;
+	}
+	chart.render();
+}
 
 function sort_and_remove_x(data){
    data.sort(function(a, b){return a.y - b.y;})
